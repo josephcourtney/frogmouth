@@ -3,15 +3,18 @@
 from __future__ import annotations
 
 from pathlib import Path
-from typing import Iterable
+from typing import TYPE_CHECKING, Iterable
 
-from httpx import URL
-from textual.app import ComposeResult
 from textual.message import Message
 from textual.widgets import DirectoryTree
 
-from ...utility import maybe_markdown
+from frogmouth.utility import maybe_markdown
+
 from .navigation_pane import NavigationPane
+
+if TYPE_CHECKING:
+    from httpx import URL
+    from textual.app import ComposeResult
 
 
 class FilteredDirectoryTree(DirectoryTree):  # pylint:disable=too-many-ancestors
@@ -23,7 +26,8 @@ class FilteredDirectoryTree(DirectoryTree):  # pylint:disable=too-many-ancestors
         Args:
             paths: The paths to be filtered.
 
-        Returns:
+        Returns
+        -------
             The parts filtered for the Markdown viewer.
 
         The filtered set will include all filesystem entries that aren't
@@ -34,8 +38,7 @@ class FilteredDirectoryTree(DirectoryTree):  # pylint:disable=too-many-ancestors
             return [
                 path
                 for path in paths
-                if not path.name.startswith(".")
-                and path.is_dir()
+                if (not path.name.startswith(".") and path.is_dir())
                 or (path.is_file() and maybe_markdown(path))
             ]
         except PermissionError:
@@ -94,9 +97,7 @@ class LocalFiles(NavigationPane):
             self.location = location
             """The location to go to."""
 
-    def on_directory_tree_file_selected(
-        self, event: DirectoryTree.FileSelected
-    ) -> None:
+    def on_directory_tree_file_selected(self, event: DirectoryTree.FileSelected) -> None:
         """Handle a file being selected in the directory tree.
 
         Args:

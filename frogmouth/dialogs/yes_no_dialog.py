@@ -2,11 +2,15 @@
 
 from __future__ import annotations
 
-from textual.app import ComposeResult
+from typing import TYPE_CHECKING
+
 from textual.binding import Binding
 from textual.containers import Center, Horizontal, Vertical
 from textual.screen import ModalScreen
 from textual.widgets import Button, Static
+
+if TYPE_CHECKING:
+    from textual.app import ComposeResult
 
 
 class YesNoDialog(ModalScreen[bool]):

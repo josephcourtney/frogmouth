@@ -4,13 +4,14 @@ from pathlib import Path
 
 from xdg import xdg_data_home
 
-from ..utility.advertising import ORGANISATION_NAME, PACKAGE_NAME
+from frogmouth.utility.advertising import ORGANISATION_NAME, PACKAGE_NAME
 
 
 def data_directory() -> Path:
     """Get the location of the data directory.
 
-    Returns:
+    Returns
+    -------
         The location of the data directory.
 
     Note:

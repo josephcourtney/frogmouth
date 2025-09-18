@@ -22,7 +22,8 @@ async def build_raw_forge_url(
         branch: The optional branch to look in.
         desired_file: Optional name of the file to go looking for.
 
-    Returns:
+    Returns
+    -------
         The URL for the file, or `None` if none could be guessed.
 
     If the branch isn't supplied then `main` and `master` will be tested.
@@ -71,7 +72,8 @@ async def build_raw_github_url(
         branch: The optional branch to look in.
         desired_file: Optional name of the file to go looking for.
 
-    Returns:
+    Returns
+    -------
         The URL for the file, or `None` if none could be guessed.
 
     If the branch isn't supplied then `main` and `master` will be tested.
@@ -102,7 +104,8 @@ async def build_raw_gitlab_url(
         branch: The optional branch to look in.
         desired_file: Optional name of the file to go looking for.
 
-    Returns:
+    Returns
+    -------
         The URL for the file, or `None` if none could be guessed.
 
     If the branch isn't supplied then `main` and `master` will be tested.
@@ -133,7 +136,8 @@ async def build_raw_bitbucket_url(
         branch: The optional branch to look in.
         desired_file: Optional name of the file to go looking for.
 
-    Returns:
+    Returns
+    -------
         The URL for the file, or `None` if none could be guessed.
 
     If the branch isn't supplied then `main` and `master` will be tested.
@@ -164,7 +168,8 @@ async def build_raw_codeberg_url(
         branch: The optional branch to look in.
         desired_file: Optional name of the file to go looking for.
 
-    Returns:
+    Returns
+    -------
         The URL for the file, or `None` if none could be guessed.
 
     If the branch isn't supplied then `main` and `master` will be tested.

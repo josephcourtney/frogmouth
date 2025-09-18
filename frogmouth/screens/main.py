@@ -4,21 +4,19 @@ from __future__ import annotations
 
 from functools import partial
 from pathlib import Path
-from typing import Awaitable, Callable
+from typing import TYPE_CHECKING, Awaitable, Callable
 from webbrowser import open as open_url
 
 from httpx import URL
-from textual.app import ComposeResult
 from textual.binding import Binding
 from textual.containers import Horizontal
-from textual.events import Paste
 from textual.screen import Screen
 from textual.widgets import Footer, Markdown
 
-from .. import __version__
-from ..data import load_config, load_history, save_config, save_history
-from ..dialogs import ErrorDialog, HelpDialog, InformationDialog, InputDialog
-from ..utility import (
+from frogmouth import __version__
+from frogmouth.data import load_config, load_history, save_config, save_history
+from frogmouth.dialogs import ErrorDialog, HelpDialog, InformationDialog, InputDialog
+from frogmouth.utility import (
     build_raw_bitbucket_url,
     build_raw_codeberg_url,
     build_raw_github_url,
@@ -26,7 +24,7 @@ from ..utility import (
     is_likely_url,
     maybe_markdown,
 )
-from ..utility.advertising import (
+from frogmouth.utility.advertising import (
     APPLICATION_TITLE,
     ORGANISATION_NAME,
     ORGANISATION_TITLE,
@@ -34,8 +32,13 @@ from ..utility.advertising import (
     PACKAGE_NAME,
     TEXTUAL_URL,
 )
-from ..widgets import Navigation, Omnibox, Viewer
-from ..widgets.navigation_panes import Bookmarks, History, LocalFiles
+from frogmouth.widgets import Navigation, Omnibox, Viewer
+
+if TYPE_CHECKING:
+    from textual.app import ComposeResult
+    from textual.events import Paste
+
+    from frogmouth.widgets.navigation_panes import Bookmarks, History, LocalFiles
 
 
 class Main(Screen[None]):  # pylint:disable=too-many-public-methods
@@ -102,7 +105,8 @@ class Main(Screen[None]):  # pylint:disable=too-many-public-methods
     def compose(self) -> ComposeResult:
         """Compose the main screen.
 
-        Returns:
+        Returns
+        -------
             The result of composing the screen.
         """
         yield Omnibox(classes="focusable")
@@ -146,7 +150,6 @@ class Main(Screen[None]):  # pylint:disable=too-many-public-methods
 
     async def on_mount(self) -> None:
         """Set up the main screen once the DOM is ready."""
-
         # Currently Textual's Markdown can steal focus, which gets confusing
         # as it's not obvious *what* is focused. So let's stop it from
         # allowing the content to get focus.
@@ -211,13 +214,9 @@ class Main(Screen[None]):  # pylint:disable=too-many-public-methods
             event: The chdir command event to handle.
         """
         if not event.target.exists():
-            self.app.push_screen(
-                ErrorDialog("No such directory", f"{event.target} does not exist.")
-            )
+            self.app.push_screen(ErrorDialog("No such directory", f"{event.target} does not exist."))
         elif not event.target.is_dir():
-            self.app.push_screen(
-                ErrorDialog("Not a directory", f"{event.target} is not a directory.")
-            )
+            self.app.push_screen(ErrorDialog("Not a directory", f"{event.target} is not a directory."))
         else:
             self.query_one(Navigation).jump_to_local_files(event.target)
 
@@ -238,9 +237,7 @@ class Main(Screen[None]):  # pylint:disable=too-many-public-methods
             event: The event that contains the request information for the file.
             builder: The function that builds the URL.
         """
-        if url := await builder(
-            event.owner, event.repository, event.branch, event.desired_file
-        ):
+        if url := await builder(event.owner, event.repository, event.branch, event.desired_file):
             self.visit(url)
         else:
             self.app.push_screen(
@@ -267,9 +264,7 @@ class Main(Screen[None]):  # pylint:disable=too-many-public-methods
         """
         await self._from_forge("GitLab", event, build_raw_gitlab_url)
 
-    async def on_omnibox_bit_bucket_command(
-        self, event: Omnibox.BitBucketCommand
-    ) -> None:
+    async def on_omnibox_bit_bucket_command(self, event: Omnibox.BitBucketCommand) -> None:
         """Handle a BitBucket shortcut command.
 
         Args:
@@ -311,9 +306,7 @@ class Main(Screen[None]):  # pylint:disable=too-many-public-methods
         Args:
             event: The event to handle.
         """
-        self.visit(
-            event.location, remember=event.location != self.query_one(Viewer).location
-        )
+        self.visit(event.location, remember=event.location != self.query_one(Viewer).location)
 
     def on_history_delete(self, event: History.Delete) -> None:
         """Handle a request to delete an item from history.
@@ -324,7 +317,7 @@ class Main(Screen[None]):  # pylint:disable=too-many-public-methods
         self.query_one(Viewer).delete_history(event.history_id)
 
     def on_history_clear(self) -> None:
-        """handle a request to clear down all of history."""
+        """Handle a request to clear down all of history."""
         self.query_one(Viewer).clear_history()
 
     def on_bookmarks_goto(self, event: Bookmarks.Goto) -> None:
@@ -358,9 +351,7 @@ class Main(Screen[None]):  # pylint:disable=too-many-public-methods
         self.query_one(Navigation).history.update_from(event.viewer.history.locations)
         save_history(event.viewer.history.locations)
 
-    def on_markdown_table_of_contents_updated(
-        self, event: Markdown.TableOfContentsUpdated
-    ) -> None:
+    def on_markdown_table_of_contents_updated(self, event: Markdown.TableOfContentsUpdated) -> None:
         """Handle the table of contents of the document being updated.
 
         Args:
@@ -370,9 +361,7 @@ class Main(Screen[None]):  # pylint:disable=too-many-public-methods
         # over there.
         self.query_one(Navigation).table_of_contents.on_table_of_contents_updated(event)
 
-    def on_markdown_table_of_contents_selected(
-        self, event: Markdown.TableOfContentsSelected
-    ) -> None:
+    def on_markdown_table_of_contents_selected(self, event: Markdown.TableOfContentsSelected) -> None:
         """Handle the user selecting something from the table of contents.
 
         Args:
@@ -403,9 +392,7 @@ class Main(Screen[None]):  # pylint:disable=too-many-public-methods
             self.visit(local_file)
         elif (
             isinstance(current_location, Path)
-            and (local_file := (current_location.parent / Path(event.href)))
-            .absolute()
-            .exists()
+            and (local_file := (current_location.parent / Path(event.href))).absolute().exists()
         ):
             # It looks like a local file, and tested relative to the
             # document we found it exists in the local filesystem, so let's
@@ -517,7 +504,6 @@ class Main(Screen[None]):  # pylint:disable=too-many-public-methods
 
     def action_bookmark_this(self) -> None:
         """Add a bookmark for the currently-viewed file."""
-
         location = self.query_one(Viewer).location
 
         # Only allow bookmarking if we're actually viewing something that

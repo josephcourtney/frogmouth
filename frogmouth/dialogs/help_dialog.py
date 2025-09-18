@@ -1,20 +1,18 @@
 """The main help dialog for the application."""
 
 import webbrowser
+from typing import Final
 
 from textual.app import ComposeResult
 from textual.binding import Binding
 from textual.containers import Center, Vertical, VerticalScroll
 from textual.screen import ModalScreen
 from textual.widgets import Button, Markdown
-from typing_extensions import Final
 
-from .. import __version__
-from ..utility.advertising import APPLICATION_TITLE
+from frogmouth import __version__
+from frogmouth.utility.advertising import APPLICATION_TITLE
 
-HELP: Final[
-    str
-] = f"""\
+HELP: Final[str] = f"""\
 # {APPLICATION_TITLE} v{__version__} Help
 
 Welcome to {APPLICATION_TITLE} Help!

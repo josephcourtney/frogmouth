@@ -4,7 +4,6 @@ from __future__ import annotations
 
 from pathlib import Path
 from re import compile as compile_regexp
-from typing import Type
 from webbrowser import open as open_url
 
 from httpx import URL
@@ -12,8 +11,8 @@ from textual.message import Message
 from textual.reactive import var
 from textual.widgets import Input
 
-from ..utility import is_likely_url
-from ..utility.advertising import DISCORD, ORGANISATION_NAME, PACKAGE_NAME
+from frogmouth.utility import is_likely_url
+from frogmouth.utility.advertising import DISCORD, ORGANISATION_NAME, PACKAGE_NAME
 
 
 class Omnibox(Input):
@@ -68,7 +67,8 @@ class Omnibox(Input):
         Args:
             value: The value to split.
 
-        Returns:
+        Returns
+        -------
             A list of the command and the argument(s).
         """
         command = value.split(None, 1)
@@ -80,14 +80,12 @@ class Omnibox(Input):
         Args:
             value: The value to check.
 
-        Returns:
+        Returns
+        -------
             `True` if the string is a known command, `False` if not.
         """
         command, *_ = self._split_command(value)
-        return (
-            getattr(self, f"command_{self._ALIASES.get(command, command)}", None)
-            is not None
-        )
+        return getattr(self, f"command_{self._ALIASES.get(command, command)}", None) is not None
 
     def _execute_command(self, command: str) -> None:
         """Execute the given command.
@@ -96,9 +94,7 @@ class Omnibox(Input):
             command: The comment to execute.
         """
         command, arguments = self._split_command(command)
-        getattr(self, f"command_{self._ALIASES.get(command, command)}")(
-            arguments.strip()
-        )
+        getattr(self, f"command_{self._ALIASES.get(command, command)}")(arguments.strip())
 
     class LocalViewCommand(Message):
         """The local file view command."""
@@ -141,7 +137,6 @@ class Omnibox(Input):
         Args:
             event: The submit event.
         """
-
         # Clean up whatever the user input.
         submitted = self.value.strip()
 
@@ -243,13 +238,9 @@ class Omnibox(Input):
         Args:
             target: The target directory to change to.
         """
-        self.post_message(
-            self.LocalChdirCommand(Path(target or "~").expanduser().resolve())
-        )
+        self.post_message(self.LocalChdirCommand(Path(target or "~").expanduser().resolve()))
 
-    _GUESS_BRANCH = compile_regexp(
-        r"^(?P<owner>[^/ ]+)[/ ](?P<repo>[^ :]+)(?: +(?P<file>[^ ]+))?$"
-    )
+    _GUESS_BRANCH = compile_regexp(r"^(?P<owner>[^/ ]+)[/ ](?P<repo>[^ :]+)(?: +(?P<file>[^ ]+))?$")
     """Regular expression for matching a repo and file where we'll guess the branch."""
 
     _SPECIFIC_BRANCH = compile_regexp(
@@ -278,7 +269,7 @@ class Omnibox(Input):
             self.desired_file: str | None = desired_file
             """The optional file the user wants from the repository."""
 
-    def _forge_quick_look(self, command: Type[ForgeCommand], tail: str) -> None:
+    def _forge_quick_look(self, command: type[ForgeCommand], tail: str) -> None:
         """Core forge quick look support method.
 
         Args:
@@ -287,9 +278,7 @@ class Omnibox(Input):
         """
         tail = tail.strip()
         if hit := self._GUESS_BRANCH.match(tail):
-            self.post_message(
-                command(hit["owner"], hit["repo"], desired_file=hit["file"])
-            )
+            self.post_message(command(hit["owner"], hit["repo"], desired_file=hit["file"]))
         elif hit := self._SPECIFIC_BRANCH.match(tail):
             self.post_message(
                 command(
@@ -349,7 +338,7 @@ class Omnibox(Input):
         open_url(DISCORD)
 
     def command_changelog(self, _: str) -> None:
-        """The command to show the application's own ChangeLog"""
+        """The command to show the application's own ChangeLog."""
         self.command_github(f"{ORGANISATION_NAME}/{PACKAGE_NAME} ChangeLog.md")
 
     def command_obsidian(self, vault: str) -> None:
@@ -369,11 +358,6 @@ class Omnibox(Input):
         # any other OS so I'm unsure where the vault will be stored. I'll
         # add to this once I've found out.
         if (
-            target := (
-                Path(
-                    "~/Library/Mobile Documents/iCloud~md~obsidian/Documents"
-                ).expanduser()
-                / vault
-            )
+            target := (Path("~/Library/Mobile Documents/iCloud~md~obsidian/Documents").expanduser() / vault)
         ).exists():
             self.command_chdir(str(target))

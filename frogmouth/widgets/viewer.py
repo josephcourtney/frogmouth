@@ -4,24 +4,25 @@ from __future__ import annotations
 
 from collections import deque
 from pathlib import Path
-from typing import Callable
+from typing import TYPE_CHECKING, Callable, Final
 from webbrowser import open as open_url
 
 from httpx import URL, AsyncClient, HTTPStatusError, RequestError
 from markdown_it import MarkdownIt
 from mdit_py_plugins import front_matter
 from textual import work
-from textual.app import ComposeResult
 from textual.binding import Binding
 from textual.containers import VerticalScroll
 from textual.message import Message
 from textual.reactive import var
 from textual.widgets import Markdown
-from typing_extensions import Final
 
-from .. import __version__
-from ..dialogs import ErrorDialog
-from ..utility.advertising import APPLICATION_TITLE, USER_AGENT
+from frogmouth import __version__
+from frogmouth.dialogs import ErrorDialog
+from frogmouth.utility.advertising import APPLICATION_TITLE, USER_AGENT
+
+if TYPE_CHECKING:
+    from textual.app import ComposeResult
 
 PLACEHOLDER = f"""\
 # {APPLICATION_TITLE} {__version__}
@@ -38,9 +39,7 @@ class History:
 
     def __init__(self, history: list[Path | URL] | None = None) -> None:
         """Initialise the history object."""
-        self._history: deque[Path | URL] = deque(
-            history or [], maxlen=self.MAXIMUM_HISTORY_LENGTH
-        )
+        self._history: deque[Path | URL] = deque(history or [], maxlen=self.MAXIMUM_HISTORY_LENGTH)
         """The list that holds the history of locations visited."""
         self._current: int = max(len(self._history) - 1, 0)
         """The current location."""
@@ -75,7 +74,8 @@ class History:
     def back(self) -> bool:
         """Go back in the history.
 
-        Returns:
+        Returns
+        -------
             `True` if the location changed, `False` if not.
         """
         if self._current:
@@ -86,7 +86,8 @@ class History:
     def forward(self) -> bool:
         """Go forward in the history.
 
-        Returns:
+        Returns
+        -------
             `True` if the location changed, `False` if not.
         """
         if self._current < len(self._history) - 1:
@@ -146,9 +147,7 @@ class Viewer(VerticalScroll, can_focus=True, can_focus_children=True):
         """Compose the markdown viewer."""
         yield Markdown(
             PLACEHOLDER,
-            parser_factory=lambda: MarkdownIt("gfm-like").use(
-                front_matter.front_matter_plugin
-            ),
+            parser_factory=lambda: MarkdownIt("gfm-like").use(front_matter.front_matter_plugin),
         )
 
     @property
@@ -215,7 +214,6 @@ class Viewer(VerticalScroll, can_focus=True, can_focus_children=True):
             location: The location to load from.
             remember: Should we remember the location in the history?
         """
-
         try:
             async with AsyncClient() as client:
                 response = await client.get(
@@ -243,8 +241,7 @@ class Viewer(VerticalScroll, can_focus=True, can_focus_children=True):
         # Markdown.
         content_type = response.headers.get("content-type", "")
         if any(
-            content_type.startswith(f"text/{sub_type}")
-            for sub_type in ("plain", "markdown", "x-markdown")
+            content_type.startswith(f"text/{sub_type}") for sub_type in ("plain", "markdown", "x-markdown")
         ):
             self.document.update(response.text)
             self._post_load(location, remember)
@@ -267,7 +264,8 @@ class Viewer(VerticalScroll, can_focus=True, can_focus_children=True):
         elif isinstance(location, URL):
             self._remote_load(location, remember)
         else:
-            raise ValueError("Unknown location type passed to the Markdown viewer")
+            msg = "Unknown location type passed to the Markdown viewer"
+            raise ValueError(msg)
 
     def reload(self) -> None:
         """Reload the current location."""
@@ -290,9 +288,8 @@ class Viewer(VerticalScroll, can_focus=True, can_focus_children=True):
         Args:
             direction: A function that jumps in the desired direction.
         """
-        if direction():
-            if self.history.location is not None:
-                self.visit(self.history.location, remember=False)
+        if direction() and self.history.location is not None:
+            self.visit(self.history.location, remember=False)
 
     def back(self) -> None:
         """Go back in the viewer history."""

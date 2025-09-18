@@ -8,7 +8,8 @@ from typing import Any, NamedTuple
 
 from httpx import URL
 
-from ..utility import is_likely_url
+from frogmouth.utility import is_likely_url
+
 from .data_directory import data_directory
 
 
@@ -24,7 +25,8 @@ class Bookmark(NamedTuple):
 def bookmarks_file() -> Path:
     """Get the location of the bookmarks file.
 
-    Returns:
+    Returns
+    -------
         The location of the bookmarks file.
     """
     return data_directory() / "bookmarks.json"
@@ -57,14 +59,13 @@ def save_bookmarks(bookmarks: list[Bookmark]) -> None:
 def load_bookmarks() -> list[Bookmark]:
     """Load the bookmarks.
 
-    Returns:
+    Returns
+    -------
         The bookmarks.
     """
     return (
         [
-            Bookmark(
-                title, URL(location) if is_likely_url(location) else Path(location)
-            )
+            Bookmark(title, URL(location) if is_likely_url(location) else Path(location))
             for (title, location) in loads(bookmarks.read_text())
         ]
         if (bookmarks := bookmarks_file()).exists()

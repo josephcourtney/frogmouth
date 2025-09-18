@@ -38,9 +38,7 @@ class TableOfContents(NavigationPane):
 
     def set_focus_within(self) -> None:
         """Ensure the tree in the table of contents is focused."""
-        self.query_one("MarkdownTableOfContents > Tree", Tree).focus(
-            scroll_visible=False
-        )
+        self.query_one("MarkdownTableOfContents > Tree", Tree).focus(scroll_visible=False)
 
     def compose(self) -> ComposeResult:
         """Compose the child widgets."""
@@ -56,14 +54,10 @@ class TableOfContents(NavigationPane):
         # https://github.com/Textualize/textual/issues/2516
         yield MarkdownTableOfContents(Markdown())
 
-    def on_table_of_contents_updated(
-        self, event: Markdown.TableOfContentsUpdated
-    ) -> None:
+    def on_table_of_contents_updated(self, event: Markdown.TableOfContentsUpdated) -> None:
         """Handle a table of contents update event.
 
         Args:
             event: The table of content update event to handle.
         """
-        self.query_one(
-            MarkdownTableOfContents
-        ).table_of_contents = event.table_of_contents
+        self.query_one(MarkdownTableOfContents).table_of_contents = event.table_of_contents

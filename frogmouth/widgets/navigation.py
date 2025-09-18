@@ -2,9 +2,8 @@
 
 from __future__ import annotations
 
-from pathlib import Path
+from typing import TYPE_CHECKING
 
-from textual.app import ComposeResult
 from textual.binding import Binding
 from textual.containers import Vertical
 from textual.message import Message
@@ -12,12 +11,18 @@ from textual.reactive import var
 from textual.widgets import TabbedContent, Tabs
 from typing_extensions import Self
 
-from ..data import load_config, save_config
+from frogmouth.data import load_config, save_config
+
 from .navigation_panes.bookmarks import Bookmarks
 from .navigation_panes.history import History
 from .navigation_panes.local_files import LocalFiles
 from .navigation_panes.navigation_pane import NavigationPane
 from .navigation_panes.table_of_contents import TableOfContents
+
+if TYPE_CHECKING:
+    from pathlib import Path
+
+    from textual.app import ComposeResult
 
 
 class Navigation(Vertical, can_focus=False, can_focus_children=True):
@@ -116,14 +121,11 @@ class Navigation(Vertical, can_focus=False, can_focus_children=True):
     def jump_to_local_files(self, target: Path | None = None) -> Self:
         """Switch to and focus the local files pane.
 
-        Returns:
+        Returns
+        -------
             Self.
         """
-        if (
-            self.popped_out
-            and target is None
-            and self.query_one(Tabs).active == self._local_files.id
-        ):
+        if self.popped_out and target is None and self.query_one(Tabs).active == self._local_files.id:
             self.popped_out = False
         else:
             self.popped_out = True
@@ -135,7 +137,8 @@ class Navigation(Vertical, can_focus=False, can_focus_children=True):
     def jump_to_bookmarks(self) -> Self:
         """Switch to and focus the bookmarks pane.
 
-        Returns:
+        Returns
+        -------
             Self.
         """
         if self.popped_out and self.query_one(Tabs).active == self._bookmarks.id:
@@ -148,7 +151,8 @@ class Navigation(Vertical, can_focus=False, can_focus_children=True):
     def jump_to_history(self) -> Self:
         """Switch to and focus the history pane.
 
-        Returns:
+        Returns
+        -------
             Self.
         """
         if self.popped_out and self.query_one(Tabs).active == self._history.id:
@@ -161,7 +165,8 @@ class Navigation(Vertical, can_focus=False, can_focus_children=True):
     def jump_to_contents(self) -> Self:
         """Switch to and focus the table of contents pane.
 
-        Returns:
+        Returns
+        -------
             Self.
         """
         if self.popped_out and self.query_one(Tabs).active == self._contents.id:
@@ -191,6 +196,4 @@ class Navigation(Vertical, can_focus=False, can_focus_children=True):
     def focus_tab(self) -> None:
         """Focus the currently active tab."""
         if active := self.query_one(Tabs).active:
-            self.query_one(
-                f"NavigationPane#{active}", NavigationPane
-            ).set_focus_within()
+            self.query_one(f"NavigationPane#{active}", NavigationPane).set_focus_within()

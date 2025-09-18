@@ -13,7 +13,8 @@ class NavigationPane(TabPane):
     def activate(self) -> Self:
         """Activate the navigation pane.
 
-        Returns:
+        Returns
+        -------
             Self.
         """
         assert self.parent is not None
