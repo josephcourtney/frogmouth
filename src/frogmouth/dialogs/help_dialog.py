@@ -1,9 +1,10 @@
 """The main help dialog for the application."""
 
-import webbrowser
-from typing import Final
+from __future__ import annotations
 
-from textual.app import ComposeResult
+import webbrowser
+from typing import TYPE_CHECKING, ClassVar, Final
+
 from textual.binding import Binding
 from textual.containers import Center, Vertical, VerticalScroll
 from textual.screen import ModalScreen
@@ -11,6 +12,9 @@ from textual.widgets import Button, Markdown
 
 from frogmouth import __version__
 from frogmouth.utility.advertising import APPLICATION_TITLE
+
+if TYPE_CHECKING:
+    from textual.app import ComposeResult
 
 HELP: Final[str] = f"""\
 # {APPLICATION_TITLE} v{__version__} Help
@@ -92,7 +96,7 @@ first a `main` and then a `master` branch.
 class HelpDialog(ModalScreen[None]):
     """Modal dialog that shows the application's help."""
 
-    DEFAULT_CSS = """
+    DEFAULT_CSS: ClassVar[str] = """
     HelpDialog {
         align: center middle;
     }
@@ -115,16 +119,22 @@ class HelpDialog(ModalScreen[None]):
     }
     """
 
-    BINDINGS = [
+    BINDINGS: ClassVar[list[Binding]] = [
         Binding("escape,f1", "dismiss(None)", "", show=False),
     ]
     """Bindings for the help dialog."""
+
+    def __init__(self) -> None:
+        """Initialise the help dialog."""
+        super().__init__()
+        self._markdown: Markdown | None = None
 
     def compose(self) -> ComposeResult:
         """Compose the help screen."""
         with Vertical():
             with VerticalScroll():
-                yield Markdown(HELP)
+                self._markdown = Markdown(HELP)
+                yield self._markdown
             with Center():
                 yield Button("Close", variant="primary")
 
@@ -132,7 +142,8 @@ class HelpDialog(ModalScreen[None]):
         """Configure the help screen once the DOM is ready."""
         # It seems that some things inside Markdown can still grab focus;
         # which might not be right. Let's ensure that can't happen here.
-        self.query_one(Markdown).can_focus_children = False
+        if self._markdown is not None:
+            self._markdown.can_focus_children = False
         self.query_one("Vertical > VerticalScroll").focus()
 
     def on_button_pressed(self) -> None:
@@ -140,9 +151,9 @@ class HelpDialog(ModalScreen[None]):
         self.dismiss(None)
 
     def on_markdown_link_clicked(self, event: Markdown.LinkClicked) -> None:
-        """A link was clicked in the help.
+        """Open a clicked help link in the system browser.
 
         Args:
             event: The link click event to handle.
         """
-        webbrowser.open(event.href)
+        self.call_from_executor(webbrowser.open, event.href)

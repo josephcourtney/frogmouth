@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, ClassVar
 
 from textual.binding import Binding
 from textual.containers import Vertical
@@ -28,7 +28,7 @@ if TYPE_CHECKING:
 class Navigation(Vertical, can_focus=False, can_focus_children=True):
     """A navigation panel widget."""
 
-    DEFAULT_CSS = """
+    DEFAULT_CSS: ClassVar[str] = """
     Navigation {
         width: 44;
         background: $panel;
@@ -49,17 +49,17 @@ class Navigation(Vertical, can_focus=False, can_focus_children=True):
     }
     """
 
-    BINDINGS = [
+    BINDINGS: ClassVar[list[Binding]] = [
         Binding("comma,a,ctrl+left,shift+left,h", "previous_tab", "", show=False),
         Binding("full_stop,d,ctrl+right,shift+right,l", "next_tab", "", show=False),
         Binding("\\", "toggle_dock", "Dock left/right"),
     ]
     """Bindings local to the navigation pane."""
 
-    popped_out: var[bool] = var(False)
+    popped_out: var[bool] = var(default=False)
     """Is the navigation popped out?"""
 
-    docked_left: var[bool] = var(True)
+    docked_left: var[bool] = var(default=True)
     """Should navigation be docked to the left side of the screen?"""
 
     def compose(self) -> ComposeResult:

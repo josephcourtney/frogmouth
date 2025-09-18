@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from functools import partial
 from pathlib import Path
-from typing import TYPE_CHECKING, Awaitable, Callable
+from typing import TYPE_CHECKING, Awaitable, Callable, ClassVar
 from webbrowser import open as open_url
 
 from httpx import URL
@@ -41,10 +41,10 @@ if TYPE_CHECKING:
     from frogmouth.widgets.navigation_panes import Bookmarks, History, LocalFiles
 
 
-class Main(Screen[None]):  # pylint:disable=too-many-public-methods
+class Main(Screen[None]):  # pylint:disable=too-many-public-methods  # noqa: PLR0904
     """The main screen for the application."""
 
-    DEFAULT_CSS = """
+    DEFAULT_CSS: ClassVar[str] = """
     .focusable {
         border: blank;
     }
@@ -74,7 +74,7 @@ class Main(Screen[None]):  # pylint:disable=too-many-public-methods
     }
     """
 
-    BINDINGS = [
+    BINDINGS: ClassVar[list[Binding]] = [
         Binding("/,:", "omnibox", "Omnibox", show=False),
         Binding("ctrl+b", "bookmarks", "", show=False),
         Binding("ctrl+d", "bookmark_this", "", show=False),
@@ -101,6 +101,9 @@ class Main(Screen[None]):  # pylint:disable=too-many-public-methods
         """
         super().__init__()
         self._initial_location = initial_location
+        self._omnibox: Omnibox | None = None
+        self._navigation: Navigation | None = None
+        self._viewer: Viewer | None = None
 
     def compose(self) -> ComposeResult:
         """Compose the main screen.
@@ -109,13 +112,19 @@ class Main(Screen[None]):  # pylint:disable=too-many-public-methods
         -------
             The result of composing the screen.
         """
-        yield Omnibox(classes="focusable")
+        omnibox = Omnibox(classes="focusable")
+        navigation = Navigation()
+        viewer = Viewer(classes="focusable")
+        self._omnibox = omnibox
+        self._navigation = navigation
+        self._viewer = viewer
+        yield omnibox
         with Horizontal():
-            yield Navigation()
-            yield Viewer(classes="focusable")
+            yield navigation
+            yield viewer
         yield Footer()
 
-    def visit(self, location: Path | URL, remember: bool = True) -> None:
+    def visit(self, location: Path | URL, *, remember: bool = True) -> None:
         """Visit the given location.
 
         Args:
@@ -126,7 +135,7 @@ class Main(Screen[None]):  # pylint:disable=too-many-public-methods
         # locally in the filesystem or out on the web...
         if maybe_markdown(location):
             # ...attempt to visit it in the viewer.
-            self.query_one(Viewer).visit(location, remember)
+            self.query_one(Viewer).visit(location, remember=remember)
         elif isinstance(location, Path):
             # So, it's not Markdown, but it *is* a Path of some sort. If the
             # resource seems to exist...

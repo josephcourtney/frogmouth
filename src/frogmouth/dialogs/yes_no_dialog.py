@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, ClassVar
 
 from textual.binding import Binding
 from textual.containers import Center, Horizontal, Vertical
@@ -16,7 +16,7 @@ if TYPE_CHECKING:
 class YesNoDialog(ModalScreen[bool]):
     """A dialog for asking a user a yes/no question."""
 
-    DEFAULT_CSS = """
+    DEFAULT_CSS: ClassVar[str] = """
     YesNoDialog {
         align: center middle;
     }
@@ -59,7 +59,7 @@ class YesNoDialog(ModalScreen[bool]):
     """
     """The default CSS for the yes/no dialog."""
 
-    BINDINGS = [
+    BINDINGS: ClassVar[list[Binding]] = [
         Binding("left,up", "focus_previous", "", show=False),
         Binding("right,down", "focus_next", "", show=False),
         Binding("escape", "app.pop_screen", "", show=False),
@@ -72,6 +72,7 @@ class YesNoDialog(ModalScreen[bool]):
         question: str,
         yes_label: str = "Yes",
         no_label: str = "No",
+        *,
         yes_first: bool = True,
     ) -> None:
         """Initialise the yes/no dialog.
