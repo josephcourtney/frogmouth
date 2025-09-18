@@ -268,9 +268,9 @@ class Viewer(VerticalScroll, can_focus=True, can_focus_children=True):
         """
         # Based on the type of the location, load up the content.
         if isinstance(location, Path):
-            self._local_load(location.expanduser().resolve(), remember)
+            self._local_load(location.expanduser().resolve(), remember=remember)
         elif isinstance(location, URL):
-            self._remote_load(location, remember)
+            self._remote_load(location, remember=remember)
         else:
             msg = "Unknown location type passed to the Markdown viewer"
             raise TypeError(msg)

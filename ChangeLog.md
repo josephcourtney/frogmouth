@@ -10,6 +10,10 @@
 - Added support for jumping to an internal anchor.
   [#91](https://github.com/Textualize/frogmouth/issues/91)
 
+### Fixed
+
+- pass the remember flag as a keyword when loading documents to avoid worker argument errors.
+
 ## [0.9.2] - 2023-11-28
 
 ### Changed
