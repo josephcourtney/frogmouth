@@ -31,7 +31,8 @@
     "httpx>=0.24.1,<0.25",
     "xdg>=6,<7",
     'typing-extensions>=4.5; python_version < "3.11"',
-  ]
+    "textual-image>=0.8.4",
+]
 
   [project.scripts]
     frogmouth = "frogmouth.app.app:run"
