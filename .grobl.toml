@@ -1,0 +1,149 @@
+# ============================================
+# Files/folders whose *presence* isn't helpful
+# ============================================
+exclude_tree = [
+  # ---------------- grobl-specific ----------------
+  ".grobl.config.json",
+  ".grobl.config.toml",   # legacy config, superseded by .grobl.toml
+  ".grobl.tokens.json",   # API tokens or auth, irrelevant for code context
+  ".groblignore",         # ignore rules, not source
+
+  # ---------------- secrets ----------------
+  ".envrc",
+  ".direnv",
+  ".env",                 # runtime secrets, not useful to include
+
+  # ---------------- version control ----------------
+  # git
+  ".git",
+  ".gitattributes",
+  ".gitignore",
+  ".gitmodules",
+  ".git-rewrite",
+
+  # non-git VCS
+  ".hg",
+  ".svn",
+
+  # CI/repo service config (workflows rarely helpful for AI context)
+  ".github",
+
+  # ---------------- editor / IDE state ----------------
+  ".idea",
+  ".vscode",
+  "*.sublime-workspace",
+  "*.sublime-project",
+  ".history",             # VSCode local history
+
+  # ---------------- OS junk ----------------
+  ".DS_Store",
+  "Thumbs.db",
+
+  # ---------------- environments / dependency caches ----------------
+  "__pycache__",
+  ".venv",
+  "venv",
+  "env",
+  "node_modules",
+  "bower_components",
+  ".mypy_cache",
+  ".pytest_cache",
+  ".hypothesis",
+  ".tox",
+  ".nox",
+  ".ruff_cache",          # Ruff linter cache
+  ".cache",               # Generic cache dir
+  ".pnpm-store",
+  ".parcel-cache",
+  "__pypackages__",       # PEP 582 local package installs
+
+  # ---------------- build artifacts ----------------
+  "dist",
+  "build",
+  "target",               # Rust, Maven, etc.
+  "wheels",               # Python distribution wheels
+  "mutants",              # mutation testing artifacts
+  "htmlcov",              # coverage HTML reports
+  "site/",                # MkDocs static site
+
+  # ---------------- coverage ----------------
+  ".coverage",            # coverage.py raw db
+  ".coverage.*",          # coverage.py shards
+  ".coverage.xml",
+  "coverage.xml",
+
+  # ---------------- Apple / Xcode ----------------
+  "*.xcuserdatad",
+  "*.xcworkspace",
+  "DerivedData",
+  "Pods",
+
+  # ---------------- Frontend frameworks ----------------
+  ".next",                # Next.js build output
+  ".nuxt",                # Nuxt build output
+  ".svelte-kit",          # SvelteKit build output
+
+  # ---------------- Build systems / infra ----------------
+  ".gradle",              # Gradle cache
+  ".terraform",           # Terraform state
+  ".terraform*",
+  ".ipynb_checkpoints",   # Jupyter notebook temp dirs
+
+  # ---------------- misc fixtures ----------------
+  "tests/fixtures/*.yaml", # vcrpy recordings (non-essential for AI)
+]
+
+# =================================================
+# Files/folders where presence is useful in the tree
+# but contents usually aren't
+# =================================================
+exclude_print = [
+  # ---------------- legal / boilerplate ----------------
+  "LICENSE",
+  "LICENSE.*",
+  "COPYING",
+  "CODE_OF_CONDUCT.md",
+  "CONTRIBUTING.md",
+
+  # ---------------- docs (structure useful, content too verbose) ----------------
+  "docs",
+
+  # ---------------- build artifacts (already excluded in tree, but defensive) ----------------
+  "dist",
+  "build",
+
+  # ---------------- assets / binaries ----------------
+  "*.lproj",              # Xcode localization
+  "*.xcassets",           # Xcode assets
+  "*.pdf",
+  "*.png",
+  "*.jpg",
+  "*.jpeg",
+  "*.gif",
+  "*.svg",
+
+  # ---------------- lock/config files ----------------
+  "package-lock.json",
+  "yarn.lock",
+  "pnpm-lock.yaml",
+  "poetry.lock",
+  "Pipfile.lock",
+  "Cargo.lock",
+  "composer.lock",
+  "Gemfile.lock",
+  "uv.lock",
+  "ruff.default.toml",    # auto-generated lint defaults, not hand-authored
+  "ruff.toml",
+
+  # ---------------- tooling configs ----------------
+  ".pre-commit-config.yaml",
+  ".python-version",
+  ".sourcery.yaml",
+]
+
+# ============================================
+# Tag settings
+# ============================================
+include_tree_tags = "directory"
+include_file_tags = "file"
+
