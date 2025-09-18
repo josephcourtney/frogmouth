@@ -4,6 +4,7 @@
 
 ### Added
 
+- add inline image rendering in Markdown documents using textual-image.
 - Front matter is now ignored when viewing a file.
   [#15](https://github.com/Textualize/frogmouth/issues/15)
 - Added support for jumping to an internal anchor.
