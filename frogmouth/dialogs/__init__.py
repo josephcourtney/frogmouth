@@ -8,8 +8,8 @@ from .yes_no_dialog import YesNoDialog
 
 __all__ = [
     "ErrorDialog",
+    "HelpDialog",
     "InformationDialog",
     "InputDialog",
-    "HelpDialog",
     "YesNoDialog",
 ]

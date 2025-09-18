@@ -4,18 +4,22 @@ from __future__ import annotations
 
 from functools import partial
 from pathlib import Path
+from typing import TYPE_CHECKING
 
-from httpx import URL
 from rich.text import Text
-from textual.app import ComposeResult
 from textual.binding import Binding
 from textual.message import Message
 from textual.widgets import OptionList
 from textual.widgets.option_list import Option
 
-from ...data import Bookmark, load_bookmarks, save_bookmarks
-from ...dialogs import InputDialog, YesNoDialog
+from frogmouth.data import Bookmark, load_bookmarks, save_bookmarks
+from frogmouth.dialogs import InputDialog, YesNoDialog
+
 from .navigation_pane import NavigationPane
+
+if TYPE_CHECKING:
+    from httpx import URL
+    from textual.app import ComposeResult
 
 
 class Entry(Option):
@@ -33,7 +37,8 @@ class Entry(Option):
         Args:
             bookmark: The bookmark to depict.
 
-        Returns:
+        Returns
+        -------
             A prompt with icon, etc.
         """
         return Text.from_markup(
@@ -159,9 +164,7 @@ class Bookmarks(NavigationPane):
             bookmark: The location of the bookmark to rename.
             new_name: The input dialog result that is the new name.
         """
-        self._bookmarks[bookmark] = Bookmark(
-            new_name, self._bookmarks[bookmark].location
-        )
+        self._bookmarks[bookmark] = Bookmark(new_name, self._bookmarks[bookmark].location)
         self._bookmarks_updated()
 
     def action_rename(self) -> None:

@@ -4,17 +4,21 @@ from __future__ import annotations
 
 from functools import partial
 from pathlib import Path
+from typing import TYPE_CHECKING
 
-from httpx import URL
 from rich.text import Text
-from textual.app import ComposeResult
 from textual.binding import Binding
 from textual.message import Message
 from textual.widgets import OptionList
 from textual.widgets.option_list import Option
 
-from ...dialogs import YesNoDialog
+from frogmouth.dialogs import YesNoDialog
+
 from .navigation_pane import NavigationPane
+
+if TYPE_CHECKING:
+    from httpx import URL
+    from textual.app import ComposeResult
 
 
 class Entry(Option):
@@ -40,7 +44,8 @@ class Entry(Option):
         Args:
             location: The location to depict.
 
-        Returns:
+        Returns
+        -------
             A prompt with icon, etc.
         """
         if isinstance(location, Path):
@@ -132,7 +137,7 @@ class History(NavigationPane):
         """Message that requests the viewer to delete an item of history."""
 
         def __init__(self, history_id: int) -> None:
-            """initialise the history delete message.
+            """Initialise the history delete message.
 
             args:
                 history_id: The ID of the item of history to delete.

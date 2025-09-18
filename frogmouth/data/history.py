@@ -8,14 +8,16 @@ from typing import Any
 
 from httpx import URL
 
-from ..utility import is_likely_url
+from frogmouth.utility import is_likely_url
+
 from .data_directory import data_directory
 
 
 def history_file() -> Path:
     """Get the location of the history file.
 
-    Returns:
+    Returns
+    -------
         The location of the history file.
     """
     return data_directory() / "history.json"
@@ -48,7 +50,8 @@ def save_history(history: list[Path | URL]) -> None:
 def load_history() -> list[Path | URL]:
     """Load the history.
 
-    Returns:
+    Returns
+    -------
         The history.
     """
     return (

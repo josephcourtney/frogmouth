@@ -6,7 +6,7 @@ from typing import Any
 
 from httpx import URL
 
-from ..data.config import load_config
+from frogmouth.data.config import load_config
 
 
 @singledispatch
@@ -16,7 +16,8 @@ def maybe_markdown(resource: Any) -> bool:
     Args:
         resource: The resource to test.
 
-    Returns:
+    Returns
+    -------
         `True` if the resources looks like a Markdown file, `False` if not.
     """
     del resource
@@ -44,9 +45,10 @@ def is_likely_url(candidate: str) -> bool:
     Args:
         candidate: The candidate to check.
 
-    Returns:
+    Returns
+    -------
         `True` if the string is likely a URL, `False` if not.
     """
     # Quick and dirty for now.
     url = URL(candidate)
-    return url.is_absolute_url and url.scheme in ("http", "https")
+    return url.is_absolute_url and url.scheme in {"http", "https"}

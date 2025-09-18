@@ -5,11 +5,14 @@ from __future__ import annotations
 from dataclasses import asdict, dataclass, field
 from functools import lru_cache
 from json import dumps, loads
-from pathlib import Path
+from typing import TYPE_CHECKING
 
 from xdg import xdg_config_home
 
-from ..utility.advertising import ORGANISATION_NAME, PACKAGE_NAME
+from frogmouth.utility.advertising import ORGANISATION_NAME, PACKAGE_NAME
+
+if TYPE_CHECKING:
+    from pathlib import Path
 
 
 @dataclass
@@ -29,16 +32,15 @@ class Config:
 def config_file() -> Path:
     """Get the path to the configuration file.
 
-    Returns:
+    Returns
+    -------
         The path to the configuration file.
 
     Note:
         As a side-effect, the configuration directory will be created if it
         does not exist.
     """
-    (config_dir := xdg_config_home() / ORGANISATION_NAME / PACKAGE_NAME).mkdir(
-        parents=True, exist_ok=True
-    )
+    (config_dir := xdg_config_home() / ORGANISATION_NAME / PACKAGE_NAME).mkdir(parents=True, exist_ok=True)
     return config_dir / "configuration.json"
 
 
@@ -48,7 +50,8 @@ def save_config(config: Config) -> Config:
     Args:
         config: The configuration to save.
 
-    Returns:
+    Returns
+    -------
         The configuration.
     """
     # Ensure any cached copy of the config is cleaned up.
@@ -64,7 +67,8 @@ def save_config(config: Config) -> Config:
 def load_config() -> Config:
     """Load the configuration from storage.
 
-    Returns:
+    Returns
+    -------
         The configuration.
 
     Note:
@@ -76,8 +80,4 @@ def load_config() -> Config:
         loaded from storage when necessary.
     """
     source_file = config_file()
-    return (
-        Config(**loads(source_file.read_text()))
-        if source_file.exists()
-        else save_config(Config())
-    )
+    return Config(**loads(source_file.read_text())) if source_file.exists() else save_config(Config())

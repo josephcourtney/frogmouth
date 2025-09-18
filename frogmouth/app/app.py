@@ -6,10 +6,10 @@ from webbrowser import open as open_url
 from textual import __version__ as textual_version  # pylint: disable=no-name-in-module
 from textual.app import App
 
-from .. import __version__
-from ..data import load_config
-from ..screens import Main
-from ..utility.advertising import APPLICATION_TITLE, PACKAGE_NAME
+from frogmouth import __version__
+from frogmouth.data import load_config
+from frogmouth.screens import Main
+from frogmouth.utility.advertising import APPLICATION_TITLE, PACKAGE_NAME
 
 
 class MarkdownViewer(App[None]):
@@ -46,10 +46,10 @@ class MarkdownViewer(App[None]):
 def get_args() -> Namespace:
     """Parse and return the command line arguments.
 
-    Returns:
+    Returns
+    -------
         The result of parsing the arguments.
     """
-
     # Create the parser object.
     parser = ArgumentParser(
         prog=PACKAGE_NAME,
