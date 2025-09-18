@@ -1,5 +1,7 @@
 """Provides the table of contents navigation pane."""
 
+from typing import ClassVar
+
 from textual.app import ComposeResult
 from textual.widgets import Markdown, Tree
 from textual.widgets.markdown import MarkdownTableOfContents
@@ -10,7 +12,7 @@ from .navigation_pane import NavigationPane
 class TableOfContents(NavigationPane):
     """Markdown document table of contents navigation pane."""
 
-    DEFAULT_CSS = """
+    DEFAULT_CSS: ClassVar[str] = """
     TableOfContents {
         height: 100%;
     }
@@ -26,7 +28,8 @@ class TableOfContents(NavigationPane):
         padding: 0;
     }
 
-    TableOfContents > MarkdownTableOfContents > Tree:focus .tree--cursor, TableOfContents > MarkdownTableOfContents > Tree .tree--cursor {
+    TableOfContents > MarkdownTableOfContents > Tree:focus .tree--cursor,
+        TableOfContents > MarkdownTableOfContents > Tree .tree--cursor {
         background: $accent 50%;
         color: $text;
     }
@@ -35,6 +38,7 @@ class TableOfContents(NavigationPane):
     def __init__(self) -> None:
         """Initialise the table of contents navigation pane."""
         super().__init__("Contents")
+        self._toc: MarkdownTableOfContents | None = None
 
     def set_focus_within(self) -> None:
         """Ensure the tree in the table of contents is focused."""
@@ -52,7 +56,8 @@ class TableOfContents(NavigationPane):
         # and documents. So... we make one and ignore it.
         #
         # https://github.com/Textualize/textual/issues/2516
-        yield MarkdownTableOfContents(Markdown())
+        self._toc = MarkdownTableOfContents(Markdown())
+        yield self._toc
 
     def on_table_of_contents_updated(self, event: Markdown.TableOfContentsUpdated) -> None:
         """Handle a table of contents update event.
@@ -60,4 +65,5 @@ class TableOfContents(NavigationPane):
         Args:
             event: The table of content update event to handle.
         """
-        self.query_one(MarkdownTableOfContents).table_of_contents = event.table_of_contents
+        toc = self._toc or self.query_one(MarkdownTableOfContents)
+        toc.table_of_contents = event.table_of_contents

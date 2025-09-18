@@ -17,7 +17,9 @@ class NavigationPane(TabPane):
         -------
             Self.
         """
-        assert self.parent is not None
+        if self.parent is None:
+            msg = "Navigation pane must have a parent before activation."
+            raise RuntimeError(msg)
         if self.id is not None and isinstance(self.parent.parent, TabbedContent):
             self.parent.parent.active = self.id
         return self

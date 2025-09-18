@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, ClassVar
 
 from textual import on
 from textual.binding import Binding
@@ -17,7 +17,7 @@ if TYPE_CHECKING:
 class InputDialog(ModalScreen[str]):
     """A modal dialog for getting a single input from the user."""
 
-    DEFAULT_CSS = """
+    DEFAULT_CSS: ClassVar[str] = """
     InputDialog {
         align: center middle;
     }
@@ -55,7 +55,7 @@ class InputDialog(ModalScreen[str]):
     """
     """The default styling for the input dialog."""
 
-    BINDINGS = [
+    BINDINGS: ClassVar[list[Binding]] = [
         Binding("escape", "app.pop_screen", "", show=False),
     ]
     """Bindings for the dialog."""

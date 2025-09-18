@@ -40,7 +40,7 @@ class MarkdownViewer(App[None]):
         Args:
             url: The URL to visit.
         """
-        open_url(url)
+        self.call_from_executor(open_url, url)
 
 
 def get_args() -> Namespace:
