@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from collections import deque
 from pathlib import Path
-from typing import TYPE_CHECKING, Callable, Final
+from typing import TYPE_CHECKING, Callable, ClassVar, Final
 from webbrowser import open as open_url
 
 from httpx import URL, AsyncClient, HTTPStatusError, RequestError
@@ -96,6 +96,7 @@ class History:
         return False
 
     def __delitem__(self, index: int) -> None:
+        """Perform cleanup after item is deleted."""
         del self._history[index]
         self._current = max(len(self._history) - 1, self._current)
 
@@ -110,7 +111,7 @@ class Viewer(VerticalScroll, can_focus=True, can_focus_children=True):
     }
     """
 
-    BINDINGS = [
+    BINDINGS: ClassVar[list[Binding]] = [
         Binding("w,k", "scroll_up", "", show=False),
         Binding("s,j", "scroll_down", "", show=False),
         Binding("space", "page_down", "", show=False),
@@ -121,7 +122,7 @@ class Viewer(VerticalScroll, can_focus=True, can_focus_children=True):
     history: var[History] = var(History)
     """The browsing history."""
 
-    viewing_location: var[bool] = var(False)
+    viewing_location: var[bool] = var(default=False)
     """Is an actual location being viewed?"""
 
     class ViewerMessage(Message):
@@ -143,7 +144,8 @@ class Viewer(VerticalScroll, can_focus=True, can_focus_children=True):
     class HistoryUpdated(ViewerMessage):
         """Message sent when the history is updated."""
 
-    def compose(self) -> ComposeResult:
+    @staticmethod
+    def compose() -> ComposeResult:
         """Compose the markdown viewer."""
         yield Markdown(
             PLACEHOLDER,
@@ -168,7 +170,7 @@ class Viewer(VerticalScroll, can_focus=True, can_focus_children=True):
         """
         self.scroll_to_widget(self.document.query_one(f"#{block_id}"), top=True)
 
-    def _post_load(self, location: Path | URL, remember: bool = True) -> None:
+    def _post_load(self, location: Path | URL, *, remember: bool = True) -> None:
         """Perform some post-load tasks.
 
         Args:
@@ -187,7 +189,7 @@ class Viewer(VerticalScroll, can_focus=True, can_focus_children=True):
         self.post_message(self.LocationChanged(self))
 
     @work(exclusive=True)
-    async def _local_load(self, location: Path, remember: bool = True) -> None:
+    async def _local_load(self, location: Path, *, remember: bool = True) -> None:
         """Load a Markdown document from a local file.
 
         Args:
@@ -207,7 +209,7 @@ class Viewer(VerticalScroll, can_focus=True, can_focus_children=True):
             self._post_load(location, remember)
 
     @work(exclusive=True)
-    async def _remote_load(self, location: URL, remember: bool = True) -> None:
+    async def _remote_load(self, location: URL, *, remember: bool = True) -> None:
         """Load a Markdown document from a URL.
 
         Args:
@@ -251,7 +253,7 @@ class Viewer(VerticalScroll, can_focus=True, can_focus_children=True):
             # to the user. Let's be nice...
             open_url(str(location))
 
-    def visit(self, location: Path | URL, remember: bool = True) -> None:
+    def visit(self, location: Path | URL, *, remember: bool = True) -> None:
         """Visit a location.
 
         Args:
@@ -265,12 +267,12 @@ class Viewer(VerticalScroll, can_focus=True, can_focus_children=True):
             self._remote_load(location, remember)
         else:
             msg = "Unknown location type passed to the Markdown viewer"
-            raise ValueError(msg)
+            raise TypeError(msg)
 
     def reload(self) -> None:
         """Reload the current location."""
         if self.location is not None:
-            self.visit(self.location, False)
+            self.visit(self.location, remember=False)
 
     def show(self, content: str) -> None:
         """Show some direct text in the viewer.

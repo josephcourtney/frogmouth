@@ -4,6 +4,7 @@ from __future__ import annotations
 
 from pathlib import Path
 from re import compile as compile_regexp
+from typing import ClassVar, Final
 from webbrowser import open as open_url
 
 from httpx import URL
@@ -31,7 +32,7 @@ class Omnibox(Input):
     """
     """Default styling for the omnibox."""
 
-    visiting: var[str] = var("")
+    visiting: ClassVar[var[str]] = var("")
     """The location that is being visited."""
 
     def watch_visiting(self) -> None:
@@ -40,7 +41,7 @@ class Omnibox(Input):
         if self.visiting:
             self.value = self.visiting
 
-    _ALIASES: dict[str, str] = {
+    _ALIASES: Final[dict[str, str]] = {
         "a": "about",
         "b": "bookmarks",
         "bm": "bookmarks",
@@ -75,7 +76,7 @@ class Omnibox(Input):
         return [*command, ""] if len(command) == 1 else command
 
     def _is_command(self, value: str) -> bool:
-        """Is the given string a known command?
+        """Determine if the given string a known command.
 
         Args:
             value: The value to check.
@@ -208,32 +209,32 @@ class Omnibox(Input):
         """The quit command."""
 
     def command_quit(self, _: str) -> None:
-        """The quit command."""
+        """Invoke the quit command."""
         self.post_message(self.QuitCommand())
 
     class HistoryCommand(Message):
         """The history command."""
 
     def command_history(self, _: str) -> None:
-        """The history command."""
+        """Invoke the history command."""
         self.post_message(self.HistoryCommand())
 
     class AboutCommand(Message):
         """The about command."""
 
     def command_about(self, _: str) -> None:
-        """The about command."""
+        """Invoke the about command."""
         self.post_message(self.AboutCommand())
 
     class HelpCommand(Message):
         """The help command."""
 
     def command_help(self, _: str) -> None:
-        """The help command."""
+        """Invoke the help command."""
         self.post_message(self.HelpCommand())
 
     def command_chdir(self, target: str) -> None:
-        """The chdir command.
+        """Invoke the chdir command.
 
         Args:
             target: The target directory to change to.
@@ -293,7 +294,7 @@ class Omnibox(Input):
         """The GitHub quick load command."""
 
     def command_github(self, tail: str) -> None:
-        """The github command.
+        """Invoke the github command.
 
         Args:
             tail: The tail of the command.
@@ -304,7 +305,7 @@ class Omnibox(Input):
         """The GitLab quick load command."""
 
     def command_gitlab(self, tail: str) -> None:
-        """The Gitlab command.
+        """Invoke the Gitlab command.
 
         Args:
             tail: The tail of the command.
@@ -315,7 +316,7 @@ class Omnibox(Input):
         """The BitBucket quick load command."""
 
     def command_bitbucket(self, tail: str) -> None:
-        """The BitBucket command.
+        """Invoke the BitBucket command.
 
         Args:
             tail: The tail of the command.
@@ -326,23 +327,24 @@ class Omnibox(Input):
         """The Codeberg quick load command."""
 
     def command_codeberg(self, tail: str) -> None:
-        """The Codeberg command.
+        """Invoke the Codeberg command.
 
         Args:
             tail: The tail of the command.
         """
         self._forge_quick_look(self.CodebergCommand, tail)
 
-    def command_discord(self, _: str) -> None:
-        """The command to visit the Textualize discord server."""
+    @staticmethod
+    def command_discord(_: str) -> None:
+        """Invoke the command to visit the Textualize discord server."""
         open_url(DISCORD)
 
     def command_changelog(self, _: str) -> None:
-        """The command to show the application's own ChangeLog."""
+        """Invoke the command to show the application's own ChangeLog."""
         self.command_github(f"{ORGANISATION_NAME}/{PACKAGE_NAME} ChangeLog.md")
 
     def command_obsidian(self, vault: str) -> None:
-        """The command to visit an obsidian vault, if one can be seen.
+        """Invoke the command to visit an obsidian vault, if one can be seen.
 
         Args:
             vault: The vault to visit.
