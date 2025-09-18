@@ -15,11 +15,11 @@ from textual.binding import Binding
 from textual.containers import VerticalScroll
 from textual.message import Message
 from textual.reactive import var
-from textual.widgets import Markdown
 
 from frogmouth import __version__
 from frogmouth.dialogs import ErrorDialog
 from frogmouth.utility.advertising import APPLICATION_TITLE, USER_AGENT
+from frogmouth.widgets.markdown import ImageMarkdown
 
 if TYPE_CHECKING:
     from textual.app import ComposeResult
@@ -152,15 +152,15 @@ class Viewer(VerticalScroll, can_focus=True, can_focus_children=True):
     @staticmethod
     def compose() -> ComposeResult:
         """Compose the markdown viewer."""
-        yield Markdown(
+        yield ImageMarkdown(
             PLACEHOLDER,
             parser_factory=lambda: MarkdownIt("gfm-like").use(front_matter.front_matter_plugin),
         )
 
     @property
-    def document(self) -> Markdown:
+    def document(self) -> ImageMarkdown:
         """The markdown document."""
-        return self.query_one(Markdown)
+        return self.query_one(ImageMarkdown)
 
     @property
     def location(self) -> Path | URL | None:
@@ -250,6 +250,7 @@ class Viewer(VerticalScroll, can_focus=True, can_focus_children=True):
         if any(
             content_type.startswith(f"text/{sub_type}") for sub_type in ("plain", "markdown", "x-markdown")
         ):
+            self.document.set_resource_location(location)
             self.document.update(response.text)
             self._post_load(location, remember)
         else:
@@ -286,6 +287,7 @@ class Viewer(VerticalScroll, can_focus=True, can_focus_children=True):
             content: The text to show.
         """
         self.viewing_location = False
+        self.document.set_resource_location(None)
         self.document.update(content)
         self.scroll_home(animate=False)
 
