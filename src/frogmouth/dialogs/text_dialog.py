@@ -1,18 +1,24 @@
 """Provides a base modal dialog for showing text to the user."""
 
-from rich.text import TextType
-from textual.app import ComposeResult
+from __future__ import annotations
+
+from typing import TYPE_CHECKING, ClassVar
+
 from textual.binding import Binding
 from textual.containers import Center, Vertical
 from textual.screen import ModalScreen
 from textual.widgets import Button, Static
-from textual.widgets._button import ButtonVariant
+
+if TYPE_CHECKING:
+    from rich.text import TextType
+    from textual.app import ComposeResult
+    from textual.widgets._button import ButtonVariant
 
 
 class TextDialog(ModalScreen[None]):
     """Base modal dialog for showing information."""
 
-    DEFAULT_CSS = """
+    DEFAULT_CSS: ClassVar[str] = """
     TextDialog {
         align: center middle;
     }
@@ -43,7 +49,7 @@ class TextDialog(ModalScreen[None]):
     """
     """Default CSS for the base text modal dialog."""
 
-    BINDINGS = [
+    BINDINGS: ClassVar[list[Binding]] = [
         Binding("escape", "dismiss(None)", "", show=False),
     ]
     """Bindings for the base text modal dialog."""

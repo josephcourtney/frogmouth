@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from functools import partial
 from pathlib import Path
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, ClassVar
 
 from rich.text import Text
 from textual.binding import Binding
@@ -51,7 +51,7 @@ class Entry(Option):
 class Bookmarks(NavigationPane):
     """Bookmarks navigation pane."""
 
-    DEFAULT_CSS = """
+    DEFAULT_CSS: ClassVar[str] = """
     Bookmarks {
         height: 100%;
     }
@@ -68,7 +68,7 @@ class Bookmarks(NavigationPane):
     """
     """The default CSS for the bookmarks navigation pane."""
 
-    BINDINGS = [
+    BINDINGS: ClassVar[list[Binding]] = [
         Binding("delete", "delete", "Delete the bookmark"),
         Binding("r", "rename", "Rename the bookmark"),
     ]
@@ -132,17 +132,19 @@ class Bookmarks(NavigationPane):
             event: The event to handle.
         """
         event.stop()
-        assert isinstance(event.option, Entry)
-        self.post_message(self.Goto(event.option.bookmark))
+        option = event.option
+        if not isinstance(option, Entry):
+            return
+        self.post_message(self.Goto(option.bookmark))
 
-    def delete_bookmark(self, bookmark: int, delete_it: bool) -> None:
+    def delete_bookmark(self, bookmark: int, *, confirm: bool) -> None:
         """Delete a given bookmark.
 
         Args:
             bookmark: The bookmark to delete.
-            delete_it: Should it be deleted?
+            confirm: Should it be deleted?
         """
-        if delete_it:
+        if confirm:
             del self._bookmarks[bookmark]
             self._bookmarks_updated()
 
@@ -154,7 +156,7 @@ class Bookmarks(NavigationPane):
                     "Delete bookmark",
                     "Are you sure you want to delete the bookmark?",
                 ),
-                partial(self.delete_bookmark, bookmark),
+                lambda decision: self.delete_bookmark(bookmark, confirm=decision),
             )
 
     def rename_bookmark(self, bookmark: int, new_name: str) -> None:

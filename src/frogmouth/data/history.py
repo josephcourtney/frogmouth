@@ -4,7 +4,6 @@ from __future__ import annotations
 
 from json import JSONEncoder, dumps, loads
 from pathlib import Path
-from typing import Any
 
 from httpx import URL
 
@@ -26,7 +25,7 @@ def history_file() -> Path:
 class HistoryEncoder(JSONEncoder):
     """JSON encoder for the history data."""
 
-    def default(self, o: object) -> Any:
+    def default(self, o: object) -> object:
         """Handle the Path and URL values.
 
         Args:
@@ -35,7 +34,9 @@ class HistoryEncoder(JSONEncoder):
         Return:
             The encoded object.
         """
-        return str(o) if isinstance(o, (Path, URL)) else o
+        if isinstance(o, (Path, URL)):
+            return str(o)
+        return super().default(o)
 
 
 def save_history(history: list[Path | URL]) -> None:
