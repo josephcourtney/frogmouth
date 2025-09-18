@@ -119,7 +119,12 @@ class Viewer(VerticalScroll, can_focus=True, can_focus_children=True):
     ]
     """Bindings for the Markdown viewer widget."""
 
-    history: var[History] = var(History)
+    def __init__(self, *args: object, **kwargs: object) -> None:
+        """Initialise the viewer."""
+        super().__init__(*args, **kwargs)
+        self.history = History()
+
+    history: var[History] = var(default=History())
     """The browsing history."""
 
     viewing_location: var[bool] = var(default=False)

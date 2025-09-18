@@ -2,9 +2,8 @@
 
 from __future__ import annotations
 
-from functools import partial
 from pathlib import Path
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, ClassVar
 
 from rich.text import Text
 from textual.binding import Binding
@@ -63,7 +62,7 @@ class Entry(Option):
 class History(NavigationPane):
     """History navigation pane."""
 
-    DEFAULT_CSS = """
+    DEFAULT_CSS: ClassVar[str] = """
     History {
         height: 100%;
     }
@@ -79,7 +78,7 @@ class History(NavigationPane):
     }
     """
 
-    BINDINGS = [
+    BINDINGS: ClassVar[list[Binding]] = [
         Binding("delete", "delete", "Delete the history item"),
         Binding("backspace", "clear", "Clean the history"),
     ]
@@ -88,14 +87,23 @@ class History(NavigationPane):
     def __init__(self) -> None:
         """Initialise the history navigation pane."""
         super().__init__("History")
+        self._option_list: OptionList | None = None
+
+    @property
+    def option_list(self) -> OptionList:
+        """Return the option list widget."""
+        if self._option_list is None:
+            self._option_list = self.query_one(OptionList)
+        return self._option_list
 
     def compose(self) -> ComposeResult:
         """Compose the child widgets."""
-        yield OptionList()
+        self._option_list = OptionList()
+        yield self._option_list
 
     def set_focus_within(self) -> None:
         """Focus the option list."""
-        self.query_one(OptionList).focus(scroll_visible=False)
+        self.option_list.focus(scroll_visible=False)
 
     def update_from(self, locations: list[Path | URL]) -> None:
         """Update the history from the given list of locations.
@@ -106,7 +114,7 @@ class History(NavigationPane):
         This call removes any existing history and sets it to the given
         value.
         """
-        option_list = self.query_one(OptionList).clear_options()
+        option_list = self.option_list.clear_options()
         for history_id, location in reversed(list(enumerate(locations))):
             option_list.add_option(Entry(history_id, location))
 
@@ -130,8 +138,10 @@ class History(NavigationPane):
             event: The event to handle.
         """
         event.stop()
-        assert isinstance(event.option, Entry)
-        self.post_message(self.Goto(event.option.location))
+        option = event.option
+        if not isinstance(option, Entry):
+            return
+        self.post_message(self.Goto(option.location))
 
     class Delete(Message):
         """Message that requests the viewer to delete an item of history."""
@@ -146,39 +156,41 @@ class History(NavigationPane):
             self.history_id = history_id
             """The ID of the item of history to delete."""
 
-    def delete_history(self, history_id: int, delete_it: bool) -> None:
+    def delete_history(self, history_id: int, *, confirm: bool) -> None:
         """Delete a given history entry.
 
         Args:
             history_id: The ID of the item of history to delete.
-            delete_it: Should it be deleted?
+            confirm: Should it be deleted?
         """
-        if delete_it:
+        if confirm:
             self.post_message(self.Delete(history_id))
 
     def action_delete(self) -> None:
         """Delete the highlighted item from history."""
-        history = self.query_one(OptionList)
+        history = self.option_list
         if (item := history.highlighted) is not None:
-            assert isinstance(entry := history.get_option_at_index(item), Entry)
+            option = history.get_option_at_index(item)
+            if not isinstance(option, Entry):
+                return
             self.app.push_screen(
                 YesNoDialog(
                     "Delete history entry?",
                     "Are you sure you want to delete the history entry?",
                 ),
-                partial(self.delete_history, entry.history_id),
+                lambda decision: self.delete_history(option.history_id, confirm=decision),
             )
 
     class Clear(Message):
         """Message that requests that the history be cleared."""
 
-    def clear_history(self, clear_it: bool) -> None:
+    def clear_history(self, *, confirmed: bool) -> None:
         """Perform a history clear.
 
         Args:
-            clear_it: Should it be cleared?
+            confirmed: Should it be cleared?
         """
-        if clear_it:
+        if confirmed:
             self.post_message(self.Clear())
 
     def action_clear(self) -> None:
@@ -188,5 +200,5 @@ class History(NavigationPane):
                 "Clear history?",
                 "Are you sure you want to clear everything out of history?",
             ),
-            self.clear_history,
+            lambda decision: self.clear_history(confirmed=decision),
         )

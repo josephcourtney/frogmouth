@@ -2,7 +2,6 @@
 
 from functools import singledispatch
 from pathlib import Path
-from typing import Any
 
 from httpx import URL
 
@@ -10,8 +9,8 @@ from frogmouth.data.config import load_config
 
 
 @singledispatch
-def maybe_markdown(resource: Any) -> bool:
-    """Does the given resource look like it's a Markdown file?
+def maybe_markdown(resource: object) -> bool:
+    """Determine whether the given resource looks like a Markdown file.
 
     Args:
         resource: The resource to test.
@@ -40,7 +39,7 @@ def _(resource: URL) -> bool:
 
 
 def is_likely_url(candidate: str) -> bool:
-    """Does the given value look something like a URL?
+    """Determine whether the given value looks like a URL.
 
     Args:
         candidate: The candidate to check.

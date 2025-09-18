@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from json import JSONEncoder, dumps, loads
 from pathlib import Path
-from typing import Any, NamedTuple
+from typing import NamedTuple
 
 from httpx import URL
 
@@ -35,7 +35,7 @@ def bookmarks_file() -> Path:
 class BookmarkEncoder(JSONEncoder):
     """JSON encoder for the bookmark data."""
 
-    def default(self, o: object) -> Any:
+    def default(self, o: object) -> object:
         """Handle the Path and URL values.
 
         Args:
@@ -44,7 +44,9 @@ class BookmarkEncoder(JSONEncoder):
         Return:
             The encoded object.
         """
-        return str(o) if isinstance(o, (Path, URL)) else o
+        if isinstance(o, (Path, URL)):
+            return str(o)
+        return super().default(o)
 
 
 def save_bookmarks(bookmarks: list[Bookmark]) -> None:
