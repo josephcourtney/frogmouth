@@ -101,15 +101,19 @@ Use <kbd>tab</kbd> and <kbd>shift</kbd>+<kbd>tab</kbd> to navigate between the v
 
 ## Features
 
-You can load README files direct from GitHub repositories with the `gh` command.
-Use the following syntax:
+* Inline image rendering within Markdown documents using
+  [`textual-image`](https://github.com/Textualize/textual-image). Frogmouth falls
+  back to alt text when image rendering isn't available in the current
+  environment.
+* Load README files directly from GitHub repositories with the `gh` command.
+  Use the following syntax:
 
-```
-frogmouth gh textualize/textual
-```
+  ```
+  frogmouth gh textualize/textual
+  ```
 
-This also works with the address bar in the app.
-See the help (<kbd>F1</kbd>) in the app for details.
+  This also works with the address bar in the app.
+  See the help (<kbd>F1</kbd>) in the app for details.
 
 ## Follow this project
 
