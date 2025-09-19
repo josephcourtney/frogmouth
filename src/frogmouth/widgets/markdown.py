@@ -45,8 +45,13 @@ class MarkdownImage(base_markdown.MarkdownBlock):
         resolver: ImageResolver,
         support: ImageSupport | None,
         link_href: str | None,
+        token: Token | None = None,
     ) -> None:
         super().__init__(markdown)
+        if token is not None:
+            super().__init__(markdown, token)  # type: ignore[misc]
+        else:
+            super().__init__(markdown)
         self._source = source
         self._alt_text = alt_text
         self._title = title
@@ -132,11 +137,15 @@ class MarkdownImage(base_markdown.MarkdownBlock):
             self.add_class("-link")
             image_widget.can_focus = True
         self._last_error = None
+        # Ensure the block’s intrinsic height isn’t pinned to a single text line.
+        # We’ll rely on the mounted image widget to size the block.
+        self.set_content(Text())
         caption = self._alt_text or self._title or result.location
-        self._show_status(caption)
         if result.location:
             self.tooltip = result.location
         await self.mount(image_widget)
+        # Force a layout pass after mounting the image so we don't render only a 1-row strip.
+        self.refresh(layout=True)
 
 
 class ImageMarkdownParagraph(base_markdown.MarkdownParagraph):
@@ -201,6 +210,7 @@ class ImageMarkdownParagraph(base_markdown.MarkdownParagraph):
                     resolver=markdown.image_resolver,
                     support=markdown.image_support,
                     link_href=link_stack[-1],
+                    token=child,
                 )
                 self._blocks.append(block)
                 if has_non_image_text:
@@ -244,6 +254,37 @@ class ImageMarkdown(base_markdown.Markdown):
         self._image_resolver = resolver or ImageResolver()
         self._image_support = support if support is not None else load_image_support()
 
+    def _make_heading_block(self, token, block_id: str) -> base_markdown.MarkdownBlock:
+        """Create a heading block compatible with multiple Textual versions.
+
+        Textual ≤0.41 exposed `HEADINGS[tag]`.
+        Textual ≥0.5x moved/renamed internals; provide fallbacks.
+        """
+        tag = token.tag
+        level = int(tag[1:])  # 'h1' → 1
+        # Legacy mapping if present.
+        headings = getattr(base_markdown, "HEADINGS", None)
+        if headings is not None:
+            return headings[tag](self, id=block_id)
+        # Newer API: try a generic heading class with level parameter.
+        Heading = getattr(base_markdown, "MarkdownHeading", None)
+        if Heading is not None:
+            # Newer signatures take (self, token, id=...), older may accept (self, level=..., id=...)
+            try:
+                return Heading(self, token, id=block_id)
+            except TypeError:
+                return Heading(self, level=level, id=block_id)
+        # Fallbacks by class name pattern.
+        for name in (f"MarkdownH{level}", f"MarkdownHeading{level}"):
+            cls = getattr(base_markdown, name, None)
+            if cls is not None:
+                try:
+                    return cls(self, token, id=block_id)
+                except TypeError:
+                    return cls(self, id=block_id)
+        msg = "Unable to locate Markdown heading block in Textual"
+        raise AttributeError(msg)
+
     @property
     def image_support(self) -> ImageSupport | None:
         return self._image_support
@@ -270,11 +311,13 @@ class ImageMarkdown(base_markdown.Markdown):
         for token in parser.parse(markdown):
             if token.type == "heading_open":
                 block_id += 1
-                stack.append(base_markdown.HEADINGS[token.tag](self, id=f"block{block_id}"))
+                stack.append(self._make_heading_block(token, f"block{block_id}"))
             elif token.type == "hr":
                 output.append(base_markdown.MarkdownHorizontalRule(self))
             elif token.type == "paragraph_open":
-                stack.append(ImageMarkdownParagraph(self))
+                stack.append(ImageMarkdownParagraph(self, token))
+            elif token.type == "paragraph_close":
+                output.extend(stack.pop().children)
             elif token.type == "blockquote_open":
                 stack.append(base_markdown.MarkdownBlockQuote(self))
             elif token.type == "bullet_list_open":
@@ -309,7 +352,12 @@ class ImageMarkdown(base_markdown.Markdown):
             elif token.type.endswith("_close"):
                 block = stack.pop()
                 if token.type == "heading_close":
-                    heading = block._text.plain  # noqa: SLF001
+                    # Robustly derive the heading text across Textual versions.
+                    # Prefer the text captured from the preceding inline token, if present.
+                    heading = getattr(block, "_frog_heading_text", None)
+                    if heading is None:
+                        # Fallback to legacy private attribute if available.
+                        heading = getattr(getattr(block, "_text", None), "plain", "")
                     level = int(token.tag[1:])
                     self._table_of_contents.append((level, heading, block.id))
                 if stack:
@@ -317,7 +365,11 @@ class ImageMarkdown(base_markdown.Markdown):
                 else:
                     output.append(block)
             elif token.type == "inline":
-                stack[-1].build_from_token(token)
+                # If we're inside a heading, record its visible text for the ToC.
+                if stack and stack[-1].__class__.__name__.startswith(("MarkdownH", "MarkdownHeading")):
+                    stack[-1]._frog_heading_text = token.content
+                else:
+                    stack[-1].build_from_token(token)
             elif token.type in {"fence", "code_block"}:
                 (stack[-1]._blocks if stack else output).append(  # noqa: SLF001
                     base_markdown.MarkdownFence(self, token.content.rstrip(), token.info)
