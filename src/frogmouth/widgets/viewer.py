@@ -211,7 +211,7 @@ class Viewer(VerticalScroll, can_focus=True, can_focus_children=True):
                 )
             )
         else:
-            self._post_load(location, remember)
+            self._post_load(location, remember=remember)
 
     @work(exclusive=True)
     async def _remote_load(self, location: URL, *, remember: bool = True) -> None:
@@ -252,7 +252,7 @@ class Viewer(VerticalScroll, can_focus=True, can_focus_children=True):
         ):
             self.document.set_resource_location(location)
             self.document.update(response.text)
-            self._post_load(location, remember)
+            self._post_load(location, remember=remember)
         else:
             # Didn't look like something we could handle with the Markdown
             # viewer. We could throw up an error, or we could just be nice

@@ -10,6 +10,7 @@ from frogmouth import __version__
 from frogmouth.data import load_config
 from frogmouth.screens import Main
 from frogmouth.utility.advertising import APPLICATION_TITLE, PACKAGE_NAME
+from frogmouth.utility.image_loader import load_image_support
 
 
 class MarkdownViewer(App[None]):
@@ -75,4 +76,5 @@ def get_args() -> Namespace:
 
 def run() -> None:
     """Run the application."""
+    load_image_support()
     MarkdownViewer(get_args()).run()

@@ -5,29 +5,22 @@
 
 [![Discord](https://img.shields.io/discord/1026214085173461072)](https://discord.gg/Enf6Z3qhVr)
 
-
-
 # Frogmouth
-
 
 Frogmouth is a Markdown viewer / browser for your terminal, built with [Textual](https://github.com/Textualize/textual).
 
 Frogmouth can open `*.md` files locally or via a URL.
 There is a familiar browser-like navigation stack, history, bookmarks, and table of contents.
 
-<details>  
+<details>
   <summary> 🎬 Demonstration </summary>
   <hr>
 
 A quick video tour of Frogmouth.
 
-
-
-
-https://user-images.githubusercontent.com/554369/235305502-2699a70e-c9a6-495e-990e-67606d84bbfa.mp4
+<https://user-images.githubusercontent.com/554369/235305502-2699a70e-c9a6-495e-990e-67606d84bbfa.mp4>
 
 (thanks [Screen Studio](https://www.screen.studio/))
-
 
 </details>
 
@@ -59,11 +52,9 @@ https://user-images.githubusercontent.com/554369/235305502-2699a70e-c9a6-495e-99
 
 </table>
 
-
 ## Compatibility
 
 Frogmouth runs on Linux, macOS, and Windows. Frogmouth requires Python **3.8** or above.
-
 
 ## Installing
 
@@ -118,3 +109,9 @@ Use <kbd>tab</kbd> and <kbd>shift</kbd>+<kbd>tab</kbd> to navigate between the v
 ## Follow this project
 
 If this app interests you, you may want to join the Textual [Discord server](https://discord.gg/Enf6Z3qhVr).
+
+## Test Image
+
+![test image](tests/data/gracehopper.jpg)
+
+Grace Hopper
